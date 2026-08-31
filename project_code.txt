@@ -1,0 +1,702 @@
+﻿package ru.kata.spring.boot_security.demo.configs;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.models.Role;
+import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.services.RoleService;
+import ru.kata.spring.boot_security.demo.services.UserService;
+
+import java.util.Collections;
+
+@Component
+public class DataInitializer implements CommandLineRunner {
+
+    private final UserService userService;
+    private final RoleService roleService;
+
+    public DataInitializer(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
+    }
+
+    @Override
+    @Transactional
+    public void run(String... args) {
+
+        // РЎРѕР·РґР°РЅРёРµ СЂРѕР»Рё Р°РґРјРёРЅ
+        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+        if (roleAdmin == null) {
+            roleAdmin = new Role("ROLE_ADMIN");
+            roleService.saveRole(roleAdmin);
+        }
+
+        // РЎРѕР·РґР°РЅРёРµ СЂРѕР»Рё СЋР·РµСЂ
+        Role roleUser = roleService.getRoleByName("ROLE_USER");
+        if (roleUser == null) {
+            roleUser = new Role("ROLE_USER");
+            roleService.saveRole(roleUser);
+        }
+
+        // РЎРѕР·РґР°РЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Р°РґРјРёРЅ
+        if (userService.getUserByEmail("admin@mail.ru") == null) {
+
+            User admin = new User();
+            admin.setFirstName("AdminFirstName");
+            admin.setLastName("AdminLastName");
+            admin.setAge(31);
+            admin.setEmail("admin@mail.ru");
+            admin.setPassword("admin");
+            admin.setRoles(Collections.singleton(roleAdmin));
+
+            userService.saveUser(admin);
+        }
+
+        // РЎРѕР·РґР°РЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЋР·РµСЂ
+        if (userService.getUserByEmail("user@mail.ru") == null) {
+
+            User user = new User();
+            user.setFirstName("UserFirstName");
+            user.setLastName("UserLastName");
+            user.setAge(30);
+            user.setEmail("user@mail.ru");
+            user.setPassword("user");
+            user.setRoles(Collections.singleton(roleUser));
+
+            userService.saveUser(user);
+        }
+    }
+}
+
+
+package ru.kata.spring.boot_security.demo.configs;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class MvcConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/login").setViewName("login");
+    }
+}
+package ru.kata.spring.boot_security.demo.configs;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class PasswordEncoderConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+package ru.kata.spring.boot_security.demo.configs;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Set;
+
+@Component
+public class SuccessUserHandler implements AuthenticationSuccessHandler {
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest httpServletRequest,
+                                        HttpServletResponse httpServletResponse,
+                                        Authentication authentication) throws IOException {
+        Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        if (roles.contains("ROLE_ADMIN")) {
+            httpServletResponse.sendRedirect("/admin");
+        } else if (roles.contains("ROLE_USER")) {
+            httpServletResponse.sendRedirect("/user");
+        } else {
+            httpServletResponse.sendRedirect("/");
+        }
+    }
+}
+package ru.kata.spring.boot_security.demo.configs;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private final SuccessUserHandler successUserHandler;
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
+
+
+    public WebSecurityConfig(SuccessUserHandler successUserHandler, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.successUserHandler = successUserHandler;
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/", "/index", "/login").permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .successHandler(successUserHandler)
+                .permitAll()
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
+                .permitAll();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+    }
+}
+
+package ru.kata.spring.boot_security.demo.controllers;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.services.UserService;
+import ru.kata.spring.boot_security.demo.services.RoleService;
+
+@Controller
+@RequestMapping("/admin")
+public class AdminController {
+
+    private final UserService userService;
+    private final RoleService roleService;
+
+    public AdminController(UserService userService,
+                           RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
+    }
+
+    @GetMapping
+    public String showAllUsers(Model model) {
+
+        model.addAttribute(
+                "users",
+                userService.getAllUsers()
+        );
+
+        model.addAttribute(
+                "allRoles",
+                roleService.getAllRoles()
+        );
+
+        return "admin";
+    }
+
+    @GetMapping("/new")
+    public String newUserForm(Model model) {
+
+        model.addAttribute(
+                "user",
+                new User()
+        );
+
+        model.addAttribute(
+                "allRoles",
+                roleService.getAllRoles()
+        );
+
+        return "new";
+    }
+
+    @PostMapping
+    public String createUser(
+            @ModelAttribute("user") User user) {
+
+        userService.saveUser(user);
+
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/update")
+    public String updateUser(
+            @ModelAttribute("user") User user) {
+
+        userService.updateUser(user);
+
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteUser(
+            @PathVariable("id") Long id) {
+
+        userService.deleteUser(id);
+
+        return "redirect:/admin";
+    }
+}
+package ru.kata.spring.boot_security.demo.controllers;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import ru.kata.spring.boot_security.demo.services.UserService;
+
+import java.security.Principal;
+
+@Controller
+@RequestMapping("/user")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping
+    public String showUserInfo(Principal principal, Model model) {
+        model.addAttribute("user", userService.getUserByEmail(principal.getName()));
+        return "user";
+    }
+}
+package ru.kata.spring.boot_security.demo.models;
+
+import org.springframework.security.core.GrantedAuthority;
+
+import javax.persistence.*;
+import java.util.Set;
+
+@Entity
+@Table(name = "roles")
+public class Role implements GrantedAuthority {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
+
+    public Role() {
+    }
+
+    public Role(String name) {
+        this.name = name;
+    }
+
+    public Role(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
+    @Override
+    public String getAuthority() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name != null ? name.replace("ROLE_", "") : "";
+    }
+}
+package ru.kata.spring.boot_security.demo.models;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Set;
+import javax.persistence.*;
+
+
+@Entity
+@Table(name = "users")
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String firstName;
+
+    private String lastName;
+
+    private int age;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles;
+
+    public User() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles();
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}
+
+package ru.kata.spring.boot_security.demo.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import ru.kata.spring.boot_security.demo.models.Role;
+
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Long> {
+    Role findByName(String name);
+}
+package ru.kata.spring.boot_security.demo.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import ru.kata.spring.boot_security.demo.models.User;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :email")
+    User getUserByEmail(@Param("email") String email);
+}
+package ru.kata.spring.boot_security.demo.services;
+
+import ru.kata.spring.boot_security.demo.models.Role;
+
+import java.util.List;
+
+public interface RoleService {
+
+    List<Role> getAllRoles();
+
+    Role getRoleById(Long id);
+
+    Role getRoleByName(String name);
+
+    void saveRole(Role role);
+
+    void deleteRole(Long id);
+}
+package ru.kata.spring.boot_security.demo.services;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.models.Role;
+import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
+
+import java.util.List;
+
+@Service
+public class RoleServiceImpl implements RoleService {
+
+    private final RoleRepository roleRepository;
+
+    public RoleServiceImpl(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Role getRoleById(Long id) {
+        return roleRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Role getRoleByName(String name) {
+        return roleRepository.findByName(name);
+    }
+
+    @Override
+    @Transactional
+    public void saveRole(Role role) {
+        roleRepository.save(role);
+    }
+
+    @Override
+    @Transactional
+    public void deleteRole(Long id) {
+        roleRepository.deleteById(id);
+    }
+}
+package ru.kata.spring.boot_security.demo.services;
+
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.repositories.UserRepository;
+
+import java.util.List;
+
+@Service
+public class UserDetailsServiceImpl implements UserService, UserDetailsService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.getUserByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException(String.format("User with email '%s' not found", email));
+        }
+        return user;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public User getUserByEmail(String email) {
+        return userRepository.getUserByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void saveUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + user.getId()));
+
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setAge(user.getAge());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setRoles(user.getRoles());
+
+        if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        userRepository.save(existingUser);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+}
+package ru.kata.spring.boot_security.demo.services;
+
+import ru.kata.spring.boot_security.demo.models.User;
+
+import java.util.List;
+
+public interface UserService {
+    List<User> getAllUsers();
+
+    User getUserById(Long id);
+
+    User getUserByEmail(String email);
+
+    void saveUser(User user);
+
+    void updateUser(User user);
+
+    void deleteUser(Long id);
+}
+package ru.kata.spring.boot_security.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringBootSecurityDemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootSecurityDemoApplication.class, args);
+    }
+
+}
+package ru.kata.spring.boot_security.demo;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class SpringBootSecurityDemoApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}

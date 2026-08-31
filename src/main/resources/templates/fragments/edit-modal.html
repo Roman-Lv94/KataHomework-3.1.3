@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="editModal(user, allRoles)"
+     class="modal fade"
+     th:id="'editModal' + ${user.id}"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content text-dark">
+
+            <!-- Header -->
+
+            <div class="modal-header border-0">
+
+                <h5 class="modal-title fw-bold">
+                    Edit user
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+
+            <!-- Body -->
+
+            <div class="modal-body">
+
+                <form th:action="@{/admin/update}"
+                      method="post"
+                      th:id="'editForm' + ${user.id}"
+                      class="new-user-form">
+
+                    <!-- ID -->
+
+                    <input type="hidden"
+                           name="id"
+                           th:value="${user.id}">
+
+
+                    <!-- ID display -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            ID
+                        </label>
+
+                        <input type="text"
+                               th:value="${user.id}"
+                               class="form-control"
+                               readonly
+                               style="background-color: #e9ecef;">
+
+                    </div>
+
+
+                    <!-- First Name -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            First name
+                        </label>
+
+                        <input type="text"
+                               name="firstName"
+                               th:value="${user.firstName}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Last Name -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Last name
+                        </label>
+
+                        <input type="text"
+                               name="lastName"
+                               th:value="${user.lastName}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Age -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Age
+                        </label>
+
+                        <input type="number"
+                               name="age"
+                               th:value="${user.age}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Email -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        <input type="email"
+                               name="email"
+                               th:value="${user.email}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Password -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Password
+                        </label>
+
+                        <input type="password"
+                               name="password"
+                               class="form-control">
+
+                    </div>
+
+
+                    <!-- Roles -->
+
+                    <div class="form-group mb-0">
+
+                        <label class="form-label">
+                            Role
+                        </label>
+
+                        <select class="form-select role-select"
+                                name="roles"
+                                multiple
+                                size="2">
+
+                            <option th:each="role : ${allRoles}"
+                                    th:value="${role.id}"
+                                    th:text="${role}"
+                                    th:selected="${user.roles.contains(role)}">
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div class="modal-footer border-0">
+
+                <button type="button"
+                        class="btn btn-secondary px-3"
+                        data-bs-dismiss="modal">
+
+                    Close
+
+                </button>
+
+                <button type="submit"
+                        th:form="'editForm' + ${user.id}"
+                        class="btn btn-primary px-3">
+
+                    Edit
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</html>

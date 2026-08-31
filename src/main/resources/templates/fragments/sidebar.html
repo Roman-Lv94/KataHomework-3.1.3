@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="sidebar"
+     class="col-md-2 sidebar p-0">
+
+    <div class="nav flex-column">
+
+        <!-- Admin -->
+
+        <a th:href="@{/admin}"
+           class="nav-link"
+           sec:authorize="hasRole('ADMIN')">
+
+            Admin
+
+        </a>
+
+
+        <!-- User -->
+
+        <a th:href="@{/user}"
+           class="nav-link">
+
+            User
+
+        </a>
+
+    </div>
+
+</div>
+
+</html>

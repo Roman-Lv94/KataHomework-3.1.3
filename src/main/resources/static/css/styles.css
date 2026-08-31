@@ -1,0 +1,196 @@
+/* ========================================= */
+/* Общие настройки */
+/* ========================================= */
+
+body {
+    background-color: #f8f9fa;
+}
+
+
+/* ========================================= */
+/* Верхняя панель */
+/* ========================================= */
+
+.navbar {
+    min-height: 60px;
+}
+
+.navbar-brand {
+    font-size: 20px;
+}
+
+
+/* ========================================= */
+/* Боковое меню */
+/* ========================================= */
+
+.sidebar {
+    min-height: calc(100vh - 60px);
+    background-color: white;
+}
+
+.sidebar .nav-link {
+    color: #0d6efd;
+    padding: 12px 15px;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    background-color: #0d6efd;
+}
+
+
+/* ========================================= */
+/* Основной контент */
+/* ========================================= */
+
+.content {
+    padding: 25px 30px;
+}
+
+.page-title {
+    font-size: 42px;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+
+/* ========================================= */
+/* Вкладки */
+/* ========================================= */
+
+.nav-tabs {
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+    color: #0d6efd;
+}
+
+.nav-tabs .nav-link.active {
+    color: #495057;
+}
+
+
+/* ========================================= */
+/* Карточка */
+/* ========================================= */
+
+.card-header {
+    background-color: white;
+}
+
+.user-card {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+
+/* ========================================= */
+/* Форма добавления пользователя */
+/* ========================================= */
+
+.new-user-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group {
+    width: 323px;
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+
+/* Поля формы */
+
+.new-user-form .form-control {
+    height: 34px;
+    font-size: 16px;
+    padding: 5px 9px;
+}
+
+
+/* ========================================= */
+/* Выбор ролей */
+/* ========================================= */
+
+.role-select {
+    height: 58px !important;
+}
+
+.role-select option {
+    padding: 2px 5px;
+}
+
+
+/* ========================================= */
+/* Кнопка Add new user */
+/* ========================================= */
+
+.add-user-button {
+    font-size: 20px;
+    padding: 9px 18px;
+}
+
+
+/* ========================================= */
+/* Таблица пользователей */
+/* ========================================= */
+
+.table th {
+    font-weight: 600;
+}
+
+
+/* ========================================= */
+/* Кнопка Edit */
+/* ========================================= */
+
+.btn-edit {
+    background-color: #008b8b !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-edit:hover {
+    background-color: #008b8b !important;
+    color: white !important;
+}
+
+
+/* ========================================= */
+/* Login */
+/* ========================================= */
+
+.login-container {
+    margin-top: 120px;
+}
+
+.login-container h2 {
+    font-weight: 600;
+}
+
+.login-button {
+    width: 100%;
+}
+
+
+/* ========================================= */
+/* Роли */
+/* ========================================= */
+
+.roles-badge {
+    margin-right: 4px;
+}

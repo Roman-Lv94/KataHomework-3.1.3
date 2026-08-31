@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<nav th:fragment="header"
+     class="navbar navbar-dark bg-dark">
+
+    <div class="container-fluid">
+
+        <!-- User information -->
+
+        <span class="navbar-text text-white">
+
+            <strong th:text="${#authentication.principal.username}">
+                admin@mail.ru
+            </strong>
+
+            <span class="ms-1">
+                with roles:
+            </span>
+
+            <span th:each="authority : ${#authentication.authorities}"
+                  th:text="${authority.authority.replace('ROLE_', '') + ' '}">
+            </span>
+
+        </span>
+
+
+        <!-- Logout -->
+
+        <form th:action="@{/logout}"
+              method="post"
+              class="mb-0">
+
+            <button type="submit"
+                    class="btn btn-link text-light text-decoration-none">
+
+                Logout
+
+            </button>
+
+        </form>
+
+    </div>
+
+</nav>
+
+</html>
