@@ -1,49 +1,26 @@
 <!DOCTYPE html>
 <html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
 
-<nav th:fragment="header"
-     class="navbar navbar-dark bg-dark">
-
+<nav th:fragment="header" class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
-
-        <!-- User information -->
-
+        <!-- Информация о пользователе -->
         <span class="navbar-text text-white">
-
-            <strong th:text="${#authentication.principal.username}">
-                admin@mail.ru
-            </strong>
-
-            <span class="ms-1">
-                with roles:
-            </span>
-
+            <strong th:text="${#authentication.principal.username}">admin@mail.ru</strong>
+            <span class="ms-1">with roles:</span>
             <span th:each="authority : ${#authentication.authorities}"
                   th:text="${authority.authority.replace('ROLE_', '') + ' '}">
             </span>
-
         </span>
 
-
         <!-- Logout -->
-
-        <form th:action="@{/logout}"
-              method="post"
-              class="mb-0">
-
-            <button type="submit"
-                    class="btn btn-link text-light text-decoration-none">
-
+        <form th:action="@{/logout}" method="post" class="mb-0">
+            <button type="submit" class="btn btn-link text-light text-decoration-none">
                 Logout
-
             </button>
-
         </form>
-
     </div>
-
 </nav>
 
 </html>

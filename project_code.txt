@@ -1,4 +1,12 @@
-﻿package ru.kata.spring.boot_security.demo.configs;
+﻿
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\.mvn\wrapper\maven-wrapper.properties =====
+
+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.3/apache-maven-3.8.3-bin.zip
+wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\configs\DataInitializer.java =====
+
+package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -9,6 +17,7 @@ import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.util.Collections;
+import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -25,21 +34,18 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
 
-        // РЎРѕР·РґР°РЅРёРµ СЂРѕР»Рё Р°РґРјРёРЅ
         Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
         if (roleAdmin == null) {
             roleAdmin = new Role("ROLE_ADMIN");
             roleService.saveRole(roleAdmin);
         }
 
-        // РЎРѕР·РґР°РЅРёРµ СЂРѕР»Рё СЋР·РµСЂ
         Role roleUser = roleService.getRoleByName("ROLE_USER");
         if (roleUser == null) {
             roleUser = new Role("ROLE_USER");
             roleService.saveRole(roleUser);
         }
 
-        // РЎРѕР·РґР°РЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Р°РґРјРёРЅ
         if (userService.getUserByEmail("admin@mail.ru") == null) {
 
             User admin = new User();
@@ -48,12 +54,13 @@ public class DataInitializer implements CommandLineRunner {
             admin.setAge(31);
             admin.setEmail("admin@mail.ru");
             admin.setPassword("admin");
-            admin.setRoles(Collections.singleton(roleAdmin));
+
+            // РР·РјРµРЅРµРЅРёРµ: Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂСѓ С‚РµРїРµСЂСЊ РїСЂРёСЃРІР°РёРІР°СЋС‚СЃСЏ РѕР±Рµ СЂРѕР»Рё
+            admin.setRoles(Set.of(roleAdmin, roleUser));
 
             userService.saveUser(admin);
         }
 
-        // РЎРѕР·РґР°РЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЋР·РµСЂ
         if (userService.getUserByEmail("user@mail.ru") == null) {
 
             User user = new User();
@@ -69,6 +76,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 }
 
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\configs\MvcConfig.java =====
 
 package ru.kata.spring.boot_security.demo.configs;
 
@@ -84,6 +92,9 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("/login").setViewName("login");
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\configs\PasswordEncoderConfig.java =====
+
 package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.context.annotation.Bean;
@@ -99,6 +110,9 @@ public class PasswordEncoderConfig {
         return new BCryptPasswordEncoder();
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\configs\SuccessUserHandler.java =====
+
 package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.security.core.Authentication;
@@ -128,6 +142,9 @@ public class SuccessUserHandler implements AuthenticationSuccessHandler {
         }
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\configs\WebSecurityConfig.java =====
+
 package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.context.annotation.Configuration;
@@ -177,6 +194,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\controllers\AdminController.java =====
+
 
 package ru.kata.spring.boot_security.demo.controllers;
 
@@ -259,6 +279,9 @@ public class AdminController {
         return "redirect:/admin";
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\controllers\UserController.java =====
+
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.stereotype.Controller;
@@ -285,6 +308,9 @@ public class UserController {
         return "user";
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\models\Role.java =====
+
 package ru.kata.spring.boot_security.demo.models;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -351,6 +377,9 @@ public class Role implements GrantedAuthority {
         return name != null ? name.replace("ROLE_", "") : "";
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\models\User.java =====
+
 package ru.kata.spring.boot_security.demo.models;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -382,7 +411,7 @@ public class User implements UserDetails {
     private String password;
 
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -481,6 +510,9 @@ public class User implements UserDetails {
     }
 }
 
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\repositories\RoleRepository.java =====
+
 package ru.kata.spring.boot_security.demo.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -491,6 +523,9 @@ import ru.kata.spring.boot_security.demo.models.Role;
 public interface RoleRepository extends JpaRepository<Role, Long> {
     Role findByName(String name);
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\repositories\UserRepository.java =====
+
 package ru.kata.spring.boot_security.demo.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -499,11 +534,21 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.kata.spring.boot_security.demo.models.User;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :email")
     User getUserByEmail(@Param("email") String email);
+
+    // РР·РјРµРЅРµРЅРёРµ: РґРѕР±Р°РІР»РµРЅ РјРµС‚РѕРґ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РІРјРµСЃС‚Рµ СЃ СЂРѕР»СЏРјРё Р·Р° 1 Р·Р°РїСЂРѕСЃ
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles")
+    List<User> findAllWithRoles();
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\services\RoleService.java =====
+
 package ru.kata.spring.boot_security.demo.services;
 
 import ru.kata.spring.boot_security.demo.models.Role;
@@ -522,6 +567,9 @@ public interface RoleService {
 
     void deleteRole(Long id);
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\services\RoleServiceImpl.java =====
+
 package ru.kata.spring.boot_security.demo.services;
 
 import org.springframework.stereotype.Service;
@@ -570,6 +618,9 @@ public class RoleServiceImpl implements RoleService {
         roleRepository.deleteById(id);
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\services\UserDetailsServiceImpl.java =====
+
 package ru.kata.spring.boot_security.demo.services;
 
 import org.springframework.context.annotation.Lazy;
@@ -608,11 +659,13 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        // РР·РјРµРЅРµРЅРёРµ: РІС‹Р·С‹РІР°РµРј РјРµС‚РѕРґ СЃ FETCH JOIN
+        return userRepository.findAllWithRoles();
     }
 
     @Override
-    @Transactional
+    // РР·РјРµРЅРµРЅРёРµ: РґРѕР±Р°РІР»РµРЅР° Р°РЅРЅРѕС‚Р°С†РёСЏ readOnly = true РґР»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё С‡С‚РµРЅРёСЏ
+    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.getUserByEmail(email);
     }
@@ -655,6 +708,9 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
         userRepository.deleteById(id);
     }
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\services\UserService.java =====
+
 package ru.kata.spring.boot_security.demo.services;
 
 import ru.kata.spring.boot_security.demo.models.User;
@@ -674,6 +730,9 @@ public interface UserService {
 
     void deleteUser(Long id);
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\java\ru\kata\spring\boot_security\demo\SpringBootSecurityDemoApplication.java =====
+
 package ru.kata.spring.boot_security.demo;
 
 import org.springframework.boot.SpringApplication;
@@ -687,6 +746,1007 @@ public class SpringBootSecurityDemoApplication {
     }
 
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\static\css\styles.css =====
+
+/* ========================================= */
+/* РћР±С‰РёРµ РЅР°СЃС‚СЂРѕР№РєРё */
+/* ========================================= */
+
+body {
+    background-color: #f8f9fa;
+}
+
+
+/* ========================================= */
+/* Р’РµСЂС…РЅСЏСЏ РїР°РЅРµР»СЊ */
+/* ========================================= */
+
+.navbar {
+    min-height: 60px;
+}
+
+.navbar-brand {
+    font-size: 20px;
+}
+
+
+/* ========================================= */
+/* Р‘РѕРєРѕРІРѕРµ РјРµРЅСЋ */
+/* ========================================= */
+
+.sidebar {
+    min-height: calc(100vh - 60px);
+    background-color: white;
+}
+
+.sidebar .nav-link {
+    color: #0d6efd;
+    padding: 12px 15px;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    background-color: #0d6efd;
+}
+
+
+/* ========================================= */
+/* РћСЃРЅРѕРІРЅРѕР№ РєРѕРЅС‚РµРЅС‚ */
+/* ========================================= */
+
+.content {
+    padding: 25px 30px;
+}
+
+.page-title {
+    font-size: 42px;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+
+/* ========================================= */
+/* Р’РєР»Р°РґРєРё */
+/* ========================================= */
+
+.nav-tabs {
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+    color: #0d6efd;
+}
+
+.nav-tabs .nav-link.active {
+    color: #495057;
+}
+
+
+/* ========================================= */
+/* РљР°СЂС‚РѕС‡РєР° */
+/* ========================================= */
+
+.card-header {
+    background-color: white;
+}
+
+.user-card {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+
+/* ========================================= */
+/* Р¤РѕСЂРјР° РґРѕР±Р°РІР»РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ */
+/* ========================================= */
+
+.new-user-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group {
+    width: 323px;
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+
+/* РџРѕР»СЏ С„РѕСЂРјС‹ */
+
+.new-user-form .form-control {
+    height: 34px;
+    font-size: 16px;
+    padding: 5px 9px;
+}
+
+
+/* ========================================= */
+/* Р’С‹Р±РѕСЂ СЂРѕР»РµР№ */
+/* ========================================= */
+
+.role-select {
+    height: 58px !important;
+}
+
+.role-select option {
+    padding: 2px 5px;
+}
+
+
+/* ========================================= */
+/* РљРЅРѕРїРєР° Add new user */
+/* ========================================= */
+
+.add-user-button {
+    font-size: 20px;
+    padding: 9px 18px;
+}
+
+
+/* ========================================= */
+/* РўР°Р±Р»РёС†Р° РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ */
+/* ========================================= */
+
+.table th {
+    font-weight: 600;
+}
+
+
+/* ========================================= */
+/* РљРЅРѕРїРєР° Edit */
+/* ========================================= */
+
+.btn-edit {
+    background-color: #008b8b !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-edit:hover {
+    background-color: #008b8b !important;
+    color: white !important;
+}
+
+
+/* ========================================= */
+/* Login */
+/* ========================================= */
+
+.login-container {
+    margin-top: 120px;
+}
+
+.login-container h2 {
+    font-weight: 600;
+}
+
+.login-button {
+    width: 100%;
+}
+
+
+/* ========================================= */
+/* Р РѕР»Рё */
+/* ========================================= */
+
+.roles-badge {
+    margin-right: 4px;
+}
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\fragments\delete-modal.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="deleteModal(user)"
+     class="modal fade"
+     th:id="'deleteModal' + ${user.id}"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content text-dark">
+
+            <!-- Header -->
+
+            <div class="modal-header border-0">
+
+                <h5 class="modal-title fw-bold">
+                    Delete user
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+
+            <!-- Body -->
+
+            <div class="modal-body">
+
+                <form th:action="@{/admin/delete/{id}(id=${user.id})}"
+                      method="post"
+                      th:id="'deleteForm' + ${user.id}">
+
+                    <!-- ID -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            ID
+                        </label>
+
+                        <input type="text"
+                               th:value="${user.id}"
+                               class="form-control"
+                               readonly
+                               style="background-color: #e9ecef;">
+
+                    </div>
+
+
+                    <!-- First Name -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            First name
+                        </label>
+
+                        <input type="text"
+                               th:value="${user.firstName}"
+                               class="form-control"
+                               readonly
+                               style="background-color: #e9ecef;">
+
+                    </div>
+
+
+                    <!-- Last Name -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Last name
+                        </label>
+
+                        <input type="text"
+                               th:value="${user.lastName}"
+                               class="form-control"
+                               readonly
+                               style="background-color: #e9ecef;">
+
+                    </div>
+
+
+                    <!-- Age -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Age
+                        </label>
+
+                        <input type="text"
+                               th:value="${user.age}"
+                               class="form-control"
+                               readonly
+                               style="background-color: #e9ecef;">
+
+                    </div>
+
+
+                    <!-- Email -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        <input type="text"
+                               th:value="${user.email}"
+                               class="form-control"
+                               readonly
+                               style="background-color: #e9ecef;">
+
+                    </div>
+
+
+                    <!-- Roles -->
+
+                    <div class="form-group mb-0">
+
+                        <label class="form-label">
+                            Role
+                        </label>
+
+                        <select class="form-select"
+                                multiple
+                                size="2"
+                                disabled>
+
+                            <option th:each="role : ${user.roles}"
+                                    th:text="${role}"
+                                    selected>
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div class="modal-footer border-0">
+
+                <button type="button"
+                        class="btn btn-secondary px-3"
+                        data-bs-dismiss="modal">
+
+                    Close
+
+                </button>
+
+                <button type="submit"
+                        th:form="'deleteForm' + ${user.id}"
+                        class="btn btn-danger px-3">
+
+                    Delete
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\fragments\edit-modal.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="editModal(user, allRoles)"
+     class="modal fade"
+     th:id="'editModal' + ${user.id}"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content text-dark">
+
+            <!-- Header -->
+
+            <div class="modal-header border-0">
+
+                <h5 class="modal-title fw-bold">
+                    Edit user
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+
+            <!-- Body -->
+
+            <div class="modal-body">
+
+                <form th:action="@{/admin/update}"
+                      method="post"
+                      th:id="'editForm' + ${user.id}"
+                      class="new-user-form">
+
+                    <!-- ID -->
+
+                    <input type="hidden"
+                           name="id"
+                           th:value="${user.id}">
+
+
+                    <!-- ID display -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            ID
+                        </label>
+
+                        <input type="text"
+                               th:value="${user.id}"
+                               class="form-control"
+                               readonly
+                               style="background-color: #e9ecef;">
+
+                    </div>
+
+
+                    <!-- First Name -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            First name
+                        </label>
+
+                        <input type="text"
+                               name="firstName"
+                               th:value="${user.firstName}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Last Name -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Last name
+                        </label>
+
+                        <input type="text"
+                               name="lastName"
+                               th:value="${user.lastName}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Age -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Age
+                        </label>
+
+                        <input type="number"
+                               name="age"
+                               th:value="${user.age}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Email -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        <input type="email"
+                               name="email"
+                               th:value="${user.email}"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <!-- Password -->
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Password
+                        </label>
+
+                        <input type="password"
+                               name="password"
+                               class="form-control">
+
+                    </div>
+
+
+                    <!-- Roles -->
+
+                    <div class="form-group mb-0">
+
+                        <label class="form-label">
+                            Role
+                        </label>
+
+                        <select class="form-select role-select"
+                                name="roles"
+                                multiple
+                                size="2">
+
+                            <option th:each="role : ${allRoles}"
+                                    th:value="${role.id}"
+                                    th:text="${role}"
+                                    th:selected="${user.roles.contains(role)}">
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div class="modal-footer border-0">
+
+                <button type="button"
+                        class="btn btn-secondary px-3"
+                        data-bs-dismiss="modal">
+
+                    Close
+
+                </button>
+
+                <button type="submit"
+                        th:form="'editForm' + ${user.id}"
+                        class="btn btn-primary px-3">
+
+                    Edit
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\fragments\header.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+
+<nav th:fragment="header" class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <!-- РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїРѕР»СЊР·РѕРІР°С‚РµР»Рµ -->
+        <span class="navbar-text text-white">
+            <strong th:text="${#authentication.principal.username}">admin@mail.ru</strong>
+            <span class="ms-1">with roles:</span>
+            <span th:each="authority : ${#authentication.authorities}"
+                  th:text="${authority.authority.replace('ROLE_', '') + ' '}">
+            </span>
+        </span>
+
+        <!-- Logout -->
+        <form th:action="@{/logout}" method="post" class="mb-0">
+            <button type="submit" class="btn btn-link text-light text-decoration-none">
+                Logout
+            </button>
+        </form>
+    </div>
+</nav>
+
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\fragments\sidebar.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+
+<div th:fragment="sidebar(activeTab)" class="col-md-2 sidebar p-0">
+    <div class="nav flex-column">
+
+        <!-- Admin (РІРёРґРµРЅ С‚РѕР»СЊРєРѕ ROLE_ADMIN) -->
+        <a th:href="@{/admin}"
+           class="nav-link"
+           th:classappend="${activeTab == 'admin'} ? 'active' : ''"
+           sec:authorize="hasRole('ADMIN')">
+            Admin
+        </a>
+
+        <!-- User (РІРёРґРµРЅ РІСЃРµРј Р°РІС‚РѕСЂРёР·РѕРІР°РЅРЅС‹Рј) -->
+        <a th:href="@{/user}"
+           class="nav-link"
+           th:classappend="${activeTab == 'user'} ? 'active' : ''">
+            User
+        </a>
+
+    </div>
+</div>
+
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\admin.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin panel</title>
+    <!-- Bootstrap -->
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<!-- HEADER FRAGMENT -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR FRAGMENT -->
+        <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
+
+        <!-- CONTENT -->
+        <div class="col-md-10 content">
+            <h1 class="page-title">Admin panel</h1>
+
+            <!-- TABS -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin}">Users table</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/new}">New User</a>
+                </li>
+            </ul>
+
+            <!-- USERS TABLE -->
+            <div class="card user-card">
+                <div class="card-header">
+                    <h5 class="mb-0">All users</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Age</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th class="text-center">Edit</th>
+                                <th class="text-center">Delete</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}">1</td>
+                                <td th:text="${user.firstName}">Ivan</td>
+                                <td th:text="${user.lastName}">Ivanov</td>
+                                <td th:text="${user.age}">25</td>
+                                <td th:text="${user.email}">admin@mail.ru</td>
+                                <td>
+                                    <span th:each="role : ${user.roles}"
+                                          class="roles-badge me-1"
+                                          th:text="${role}">
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-edit px-3" data-bs-toggle="modal" th:data-bs-target="'#editModal' + ${user.id}">Edit</button>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger px-3" data-bs-toggle="modal" th:data-bs-target="'#deleteModal' + ${user.id}">Delete</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODALS -->
+            <div th:each="user : ${users}">
+                <div th:replace="~{fragments/edit-modal :: editModal(user=${user}, allRoles=${allRoles})}"></div>
+            </div>
+            <div th:each="user : ${users}">
+                <div th:replace="~{fragments/delete-modal :: deleteModal(user=${user})}"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://jsdelivr.net"></script>
+</body>
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\login.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Login page</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-4">
+
+            <div class="mt-5">
+
+                <h2 class="text-start mb-4">
+                    Please sign in
+                </h2>
+
+                <form th:action="@{/login}" method="post">
+
+                    <div class="mb-3">
+                        <input type="text"
+                               name="username"
+                               class="form-control"
+                               placeholder="Email address"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <input type="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="Password"
+                               required>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        Sign in
+                    </button>
+
+                </form>
+
+                <div th:if="${param.error}"
+                     class="alert alert-danger mt-3">
+                    Invalid email or password
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\new.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New User</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <!-- РќР°С€Рё СЃС‚РёР»Рё -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<!-- HEADER FRAGMENT -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR FRAGMENT -->
+        <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
+
+        <!-- CONTENT -->
+        <div class="col-md-10 content">
+            <h1 class="page-title">Admin panel</h1>
+
+            <!-- TABS -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin}">Users table</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/new}">New User</a>
+                </li>
+            </ul>
+
+            <!-- CARD FORM -->
+            <div class="card user-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Add new user</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin}" th:object="${user}" method="post" class="new-user-form">
+
+                        <div class="form-group">
+                            <label class="form-label">First name</label>
+                            <input type="text" th:field="*{firstName}" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Last name</label>
+                            <input type="text" th:field="*{lastName}" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" th:field="*{age}" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" th:field="*{email}" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" th:field="*{password}" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <select class="form-select role-select" th:field="*{roles}" multiple>
+                                <option th:each="role : ${allRoles}" th:value="${role.id}" th:text="${role}"></option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success add-user-button">Add new user</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://jsdelivr.net"></script>
+</body>
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\templates\user.html =====
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User page</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <!-- РќР°С€ CSS -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<!-- HEADER FRAGMENT -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR FRAGMENT -->
+        <div th:replace="~{fragments/sidebar :: sidebar('user')}"></div>
+
+        <!-- CONTENT -->
+        <div class="col-md-10 content">
+            <h1 class="page-title">User information</h1>
+
+            <!-- USER TABLE -->
+            <div class="card user-card">
+                <div class="card-header">
+                    <h5 class="mb-0">About user</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Age</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td th:text="${user.id}">1</td>
+                                <td th:text="${user.firstName}">Ivan</td>
+                                <td th:text="${user.lastName}">Ivanov</td>
+                                <td th:text="${user.age}">25</td>
+                                <td th:text="${user.email}">user@mail.ru</td>
+                                <td>
+                                    <span th:each="role : ${user.roles}"
+                                          class="roles-badge"
+                                          th:text="${role + ' '}">
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://jsdelivr.net"></script>
+</body>
+</html>
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\main\resources\application.properties =====
+
+spring.datasource.url=jdbc:mysql://localhost:3306/my_crud_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=4651
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\src\test\java\ru\kata\spring\boot_security\demo\SpringBootSecurityDemoApplicationTests.java =====
+
 package ru.kata.spring.boot_security.demo;
 
 import org.junit.jupiter.api.Test;
@@ -700,3 +1760,82 @@ class SpringBootSecurityDemoApplicationTests {
 	}
 
 }
+
+===== C:\Users\oxaxy\Desktop\HomeWork\PP_3_1_3 Bootstrap\pom.xml =====
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.6.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>ru.kata</groupId>
+    <artifactId>spring-boot_security-demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>spring-boot_security-demo</name>
+    <description>Demo project for Spring Boot</description>
+
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

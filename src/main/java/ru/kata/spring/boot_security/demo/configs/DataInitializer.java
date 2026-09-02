@@ -9,6 +9,7 @@ import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.util.Collections;
+import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -25,21 +26,18 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
 
-        // Создание роли админ
         Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
         if (roleAdmin == null) {
             roleAdmin = new Role("ROLE_ADMIN");
             roleService.saveRole(roleAdmin);
         }
 
-        // Создание роли юзер
         Role roleUser = roleService.getRoleByName("ROLE_USER");
         if (roleUser == null) {
             roleUser = new Role("ROLE_USER");
             roleService.saveRole(roleUser);
         }
 
-        // Создание пользователя админ
         if (userService.getUserByEmail("admin@mail.ru") == null) {
 
             User admin = new User();
@@ -48,12 +46,13 @@ public class DataInitializer implements CommandLineRunner {
             admin.setAge(31);
             admin.setEmail("admin@mail.ru");
             admin.setPassword("admin");
-            admin.setRoles(Collections.singleton(roleAdmin));
+
+            // Изменение: администратору теперь присваиваются обе роли
+            admin.setRoles(Set.of(roleAdmin, roleUser));
 
             userService.saveUser(admin);
         }
 
-        // Создание пользователя юзер
         if (userService.getUserByEmail("user@mail.ru") == null) {
 
             User user = new User();
@@ -68,5 +67,3 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 }
-
-

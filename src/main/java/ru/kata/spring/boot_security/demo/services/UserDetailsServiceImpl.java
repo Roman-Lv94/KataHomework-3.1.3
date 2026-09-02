@@ -36,11 +36,13 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        // Изменение: вызываем метод с FETCH JOIN
+        return userRepository.findAllWithRoles();
     }
 
     @Override
-    @Transactional
+    // Изменение: добавлена аннотация readOnly = true для оптимизации чтения
+    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.getUserByEmail(email);
     }
